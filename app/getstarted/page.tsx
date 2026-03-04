@@ -25,6 +25,8 @@ const ROLES = ["President", "Webmaster", "Scheduler", "Board Member", "Secretary
 export default function GetStartedPage() {
   const [step, setStep] = useState(0)
   const [done, setDone] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", password: "",
     role: "",
@@ -51,9 +53,47 @@ export default function GetStartedPage() {
   const next = () => setStep(s => Math.min(s + 1, STEPS.length - 1))
   const prev = () => setStep(s => Math.max(s - 1, 0))
 
-  const finish = () => {
-    setDone(true)
-    setTimeout(() => { window.location.href = "https://sideline.page" }, 2000)
+  const finish = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch(
+        "https://bmkkjlxijxenftfiopuo.supabase.co/functions/v1/create-organization",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            firstName: form.firstName,
+            lastName: form.lastName,
+            email: form.email,
+            password: form.password,
+            orgName: form.orgName,
+            orgType: form.orgType,
+            sport: form.sport,
+            phone: form.phone,
+            city: form.city,
+            country: form.country,
+            yourRole: form.yourRole,
+            participantType: form.participantType,
+            memberCount: form.memberCount,
+            revenue: form.revenue,
+            startWith: form.startWith,
+            admins: form.admins,
+          }),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) {
+        setError(data.error || "Something went wrong. Please try again.")
+        setLoading(false)
+        return
+      }
+      setDone(true)
+      setTimeout(() => { window.location.href = "https://sideline.page/auth" }, 2000)
+    } catch {
+      setError("Network error. Please check your connection and try again.")
+      setLoading(false)
+    }
   }
 
   const inp = "w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
@@ -65,7 +105,7 @@ export default function GetStartedPage() {
           <Check className="w-8 h-8 text-primary" />
         </div>
         <h2 className="text-2xl font-bold text-foreground font-[family-name:var(--font-heading)]">You're all set!</h2>
-        <p className="text-muted-foreground">Taking you to your dashboard…</p>
+        <p className="text-muted-foreground">Your organization has been created. Taking you to log in…</p>
       </div>
     </div>
   )
@@ -297,12 +337,24 @@ export default function GetStartedPage() {
                     </button>
                   ))}
                 </div>
+                {error && (
+                  <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-4 py-3 text-sm text-destructive">
+                    {error}
+                  </div>
+                )}
                 <div className="flex gap-3 pt-2">
-                  <button onClick={prev} className="flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                  <button onClick={prev} disabled={loading} className="flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50">
                     <ArrowLeft className="w-4 h-4" /> Back
                   </button>
-                  <button onClick={finish} className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
-                    Start now <ArrowRight className="w-4 h-4" />
+                  <button onClick={finish} disabled={loading} className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-70">
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                        Creating your organization…
+                      </>
+                    ) : (
+                      <>Start now <ArrowRight className="w-4 h-4" /></>
+                    )}
                   </button>
                 </div>
               </div>
