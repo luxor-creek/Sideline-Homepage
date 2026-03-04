@@ -89,7 +89,10 @@ export default function GetStartedPage() {
         return
       }
       setDone(true)
-      setTimeout(() => { window.location.href = "https://sideline.page/auth" }, 2000)
+      // Use the magic sign-in URL so the new user lands in their own fresh session,
+      // bypassing any existing session (e.g. a different club) in the browser.
+      const destination = data.signInUrl || "https://sideline.page/auth"
+      setTimeout(() => { window.location.href = destination }, 2000)
     } catch {
       setError("Network error. Please check your connection and try again.")
       setLoading(false)
