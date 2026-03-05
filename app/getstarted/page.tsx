@@ -107,8 +107,8 @@ export default function GetStartedPage() {
         <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
           <Check className="w-8 h-8 text-primary" />
         </div>
-        <h2 className="text-2xl font-bold text-foreground font-[family-name:var(--font-heading)]">You're all set!</h2>
-        <p className="text-muted-foreground">Your organization has been created. Taking you to log in…</p>
+        <h2 className="text-2xl font-bold text-foreground font-[family-name:var(--font-heading)]">Your sandbox is ready! 🎉</h2>
+        <p className="text-muted-foreground">14-day free trial created. Taking you to your setup guide…</p>
       </div>
     </div>
   )
